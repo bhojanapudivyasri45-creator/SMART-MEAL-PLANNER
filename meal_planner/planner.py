@@ -8,8 +8,10 @@ load_dotenv()
 
 def get_meal_plan(category, days=1, user_input="", diet_pref=""):
     api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key or api_key == "YOUR_GEMINI_API_KEY_HERE":
-        return get_hardcoded_meal_plan(category, days)
+    if not api_key or api_key == "YOUR_GEMINI_API_KEY_HERE" or api_key.strip() == "":
+        fb = get_hardcoded_meal_plan(category, days)
+        fb["title"] = "Fallback Plan (Error: Missing GEMINI_API_KEY in Vercel)"
+        return fb
         
     try:
         genai.configure(api_key=api_key)
@@ -40,26 +42,25 @@ def get_meal_plan(category, days=1, user_input="", diet_pref=""):
         }}
         
         Make sure there are exactly {days} items in the daily_plans array.
-        Ensure the JSON is perfectly valid.
+        Ensure the JSON is perfectly valid without trailing commas.
         """
         
         response = model.generate_content(prompt)
-        text_response = response.text
+        text_response = response.text.strip()
         
-        # Clean up markdown code blocks if the model includes them
-        if text_response.startswith("```json"):
-            text_response = text_response[7:]
-        if text_response.startswith("```"):
-            text_response = text_response[3:]
-        if text_response.endswith("```"):
-            text_response = text_response[:-3]
-            
-        plan = json.loads(text_response.strip())
+        # Robust markdown cleanup
+        import re
+        text_response = re.sub(r"^```(?:json)?\s*", "", text_response)
+        text_response = re.sub(r"\s*```$", "", text_response)
+        
+        plan = json.loads(text_response)
         return plan
         
     except Exception as e:
         print("Gemini API failed, falling back to hardcoded plan. Error:", e)
-        return get_hardcoded_meal_plan(category, days)
+        fb = get_hardcoded_meal_plan(category, days)
+        fb["title"] = f"Fallback Plan (Gemini Error: {str(e)[:100]})"
+        return fb
 
 
 import random
