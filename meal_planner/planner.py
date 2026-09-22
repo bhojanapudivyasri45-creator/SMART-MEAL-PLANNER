@@ -40,11 +40,15 @@ def get_meal_plan(category, days=1, user_input="", diet_pref=""):
         Ensure JSON is perfectly valid.
         """
         
-        from google.api_core import retry
-        response = model.generate_content(
-            prompt, 
-            request_options={"retry": retry.Retry(initial=0, maximum=0, timeout=5.0)}
-        )
+        import concurrent.futures
+        
+        def call_gemini():
+            return model.generate_content(prompt)
+            
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(call_gemini)
+            response = future.result(timeout=4.0)
+            
         text_response = response.text.strip()
         
         # Robust markdown cleanup
