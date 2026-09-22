@@ -2,10 +2,14 @@ import sqlite3
 import os
 from datetime import datetime
 
-DB_FILE = 'database/meal_history.db'
+# Use /tmp on Vercel to avoid Read-Only File System errors (though data won't persist long-term)
+if os.environ.get('VERCEL'):
+    DB_FILE = '/tmp/meal_history.db'
+else:
+    DB_FILE = 'database/meal_history.db'
 
 def init_db():
-    os.makedirs('database', exist_ok=True)
+    os.makedirs(os.path.dirname(DB_FILE) or '.', exist_ok=True)
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     

@@ -18,15 +18,25 @@ except Exception:
     else:
         ssl._create_default_https_context = _create_unverified_https_context
         
-    nltk.download('punkt', quiet=True)
-    nltk.download('stopwords', quiet=True)
-    nltk.download('wordnet', quiet=True)
+    import os
+    if os.environ.get('VERCEL'):
+        nltk_dir = '/tmp/nltk_data'
+        os.makedirs(nltk_dir, exist_ok=True)
+        nltk.data.path.append(nltk_dir)
+    else:
+        nltk_dir = None
+        
+    nltk.download('punkt', download_dir=nltk_dir, quiet=True)
+    nltk.download('stopwords', download_dir=nltk_dir, quiet=True)
+    nltk.download('wordnet', download_dir=nltk_dir, quiet=True)
     
 # For newer NLTK versions, punkt_tab might be needed
 try:
     nltk.data.find('tokenizers/punkt_tab')
 except Exception:
-    nltk.download('punkt_tab', quiet=True)
+    import os
+    nltk_dir = '/tmp/nltk_data' if os.environ.get('VERCEL') else None
+    nltk.download('punkt_tab', download_dir=nltk_dir, quiet=True)
 
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
