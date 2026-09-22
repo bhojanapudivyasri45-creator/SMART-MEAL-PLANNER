@@ -1,6 +1,70 @@
+
+import os
+import json
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def get_meal_plan(category, days=1, user_input="", diet_pref=""):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key or api_key == "YOUR_GEMINI_API_KEY_HERE":
+        return get_hardcoded_meal_plan(category, days)
+        
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        
+        prompt = f"""
+        Generate a personalized {days}-day meal plan for a user.
+        Their original request: "{user_input}"
+        Detected health category/goal: {category}
+        Dietary preference: {diet_pref if diet_pref else "None"}
+        
+        Respond ONLY with a valid JSON object matching this exact structure, with no markdown formatting or extra text:
+        {{
+            "title": "A catchy title for this meal plan",
+            "daily_plans": [
+                {{
+                    "day": 1,
+                    "breakfast": "Detailed breakfast with specific food items and fruit names",
+                    "mid_morning_snack": "Detailed snack",
+                    "lunch": "Detailed lunch",
+                    "evening_snack": "Detailed snack",
+                    "dinner": "Detailed dinner"
+                }}
+            ],
+            "foods_to_consider": "A detailed list of foods, fruits, and drinks the user should consume.",
+            "foods_to_limit": "A detailed MEDICAL DISCLAIMER about what they MUST NOT eat or drink based on their condition.",
+            "nutrition_tips": "A couple of general nutrition tips for this specific plan."
+        }}
+        
+        Make sure there are exactly {days} items in the daily_plans array.
+        Ensure the JSON is perfectly valid.
+        """
+        
+        response = model.generate_content(prompt)
+        text_response = response.text
+        
+        # Clean up markdown code blocks if the model includes them
+        if text_response.startswith("```json"):
+            text_response = text_response[7:]
+        if text_response.startswith("```"):
+            text_response = text_response[3:]
+        if text_response.endswith("```"):
+            text_response = text_response[:-3]
+            
+        plan = json.loads(text_response.strip())
+        return plan
+        
+    except Exception as e:
+        print("Gemini API failed, falling back to hardcoded plan. Error:", e)
+        return get_hardcoded_meal_plan(category, days)
+
+
 import random
 
-def get_meal_plan(category, days=1):
+def get_hardcoded_meal_plan(category, days=1):
     """
     Returns a meal plan based on the NLP detected category.
     Generates a daily plan for the specified number of days.

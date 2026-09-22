@@ -43,8 +43,8 @@ def predict():
         if diet_pref and diet_pref != "none" and category in ["general_health", "balanced_diet"]:
             category = diet_pref
             
-        # 2. Generate Multi-Day Meal Plan (INSTANT)
-        meal_plan = get_meal_plan(category, days=days)
+        # 2. Generate Multi-Day Meal Plan (API/INSTANT)
+        meal_plan = get_meal_plan(category, days=days, user_input=user_input, diet_pref=diet_pref)
         
         # 3. Save to Database
         save_query(user_input, category, diet_pref)
