@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Meal Planner</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <h1 class="display-4 fw-bold text-success">SMART MEAL PLANNER</h1>
+            <p class="lead">NLP-Based Personalized Meal Planning Assistant</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <form action="/predict" method="POST" id="mealForm">
+                            <div class="mb-3">
+                                <label for="user_input" class="form-label fw-bold">Tell us about your meal planning needs...</label>
+                                <textarea class="form-control" id="user_input" name="user_input" rows="4" placeholder="e.g. I have diabetes and want a healthy meal plan..." required></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Example Prompts (Click to use):</label>
+                                <div class="d-flex flex-wrap gap-2" id="examplePrompts">
+                                    <span class="badge bg-light text-dark border prompt-badge p-2 cursor-pointer">I have diabetes and want a healthy meal plan</span>
+                                    <span class="badge bg-light text-dark border prompt-badge p-2 cursor-pointer">I am vegetarian and want a 7-day diet plan</span>
+                                    <span class="badge bg-light text-dark border prompt-badge p-2 cursor-pointer">I want a high-protein meal plan</span>
+                                    <span class="badge bg-light text-dark border prompt-badge p-2 cursor-pointer">I want to maintain a healthy diet</span>
+                                    <span class="badge bg-light text-dark border prompt-badge p-2 cursor-pointer">I have high blood pressure and want healthy food</span>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <p class="fw-bold mb-2">Optional Preferences:</p>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Diet Preference</label>
+                                    <select class="form-select" name="diet_pref">
+                                        <option value="none">None specified</option>
+                                        <option value="vegetarian">Vegetarian</option>
+                                        <option value="vegan">Vegan</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Number of Days</label>
+                                    <input type="number" class="form-control" name="days" value="1" min="1" max="30" placeholder="e.g. 7">
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 mt-3">
+                                <button type="submit" class="btn btn-success btn-lg" id="submitBtn">Generate Meal Plan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning text-center small shadow-sm" role="alert">
+                    <strong>Disclaimer:</strong> This application is an educational wellness tool and does not provide medical diagnosis or treatment. Meal suggestions are general information only. Users with medical conditions, allergies, pregnancy, eating disorders, or medication-related dietary restrictions should consult a qualified healthcare professional or registered dietitian before making significant dietary changes. Never stop or replace medication based on these suggestions.
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

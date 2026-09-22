@@ -1,0 +1,8 @@
+MinGit*
+PortableGit*
+
+venv/
+__pycache__/
+*.pyc
+
+.env
