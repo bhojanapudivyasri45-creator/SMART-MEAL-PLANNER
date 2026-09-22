@@ -15,7 +15,7 @@ def get_meal_plan(category, days=1, user_input="", diet_pref=""):
         
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-3.6-flash")
         
         prompt = f"""
         Generate a personalized {days}-day meal plan for a user.
