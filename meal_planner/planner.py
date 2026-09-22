@@ -18,31 +18,26 @@ def get_meal_plan(category, days=1, user_input="", diet_pref=""):
         model = genai.GenerativeModel("gemini-3.6-flash")
         
         prompt = f"""
-        Generate a personalized {days}-day meal plan for a user.
-        Their original request: "{user_input}"
-        Detected health category/goal: {category}
-        Dietary preference: {diet_pref if diet_pref else "None"}
+        You are a medical nutrition expert. Generate a specific dietary profile and meal options pool based on:
+        Original Request: "{user_input}"
+        Category: {category}
+        Diet Preference: {diet_pref if diet_pref else "None"}
         
-        Respond ONLY with a valid JSON object matching this exact structure, with no markdown formatting or extra text:
+        Respond ONLY with a valid JSON object matching this exact structure:
         {{
             "title": "A catchy title for this meal plan",
-            "daily_plans": [
-                {{
-                    "day": 1,
-                    "breakfast": "Detailed breakfast with specific food items and fruit names",
-                    "mid_morning_snack": "Detailed snack",
-                    "lunch": "Detailed lunch",
-                    "evening_snack": "Detailed snack",
-                    "dinner": "Detailed dinner"
-                }}
-            ],
-            "foods_to_consider": "A detailed list of foods, fruits, and drinks the user should consume.",
-            "foods_to_limit": "A detailed MEDICAL DISCLAIMER about what they MUST NOT eat or drink based on their condition.",
-            "nutrition_tips": "A couple of general nutrition tips for this specific plan."
+            "foods_to_consider": "Detailed list of foods and fruits they should consume.",
+            "foods_to_limit": "Detailed MEDICAL DISCLAIMER about what they MUST NOT eat or drink based on their specific condition (e.g., no chicken/meat for jaundice).",
+            "nutrition_tips": "General nutrition tips.",
+            "breakfasts": ["Option 1", "Option 2", "Option 3", "Option 4"],
+            "mid_morning_snacks": ["Option 1", "Option 2", "Option 3", "Option 4"],
+            "lunches": ["Option 1", "Option 2", "Option 3", "Option 4"],
+            "evening_snacks": ["Option 1", "Option 2", "Option 3", "Option 4"],
+            "dinners": ["Option 1", "Option 2", "Option 3", "Option 4"]
         }}
         
-        Make sure there are exactly {days} items in the daily_plans array.
-        Ensure the JSON is perfectly valid without trailing commas.
+        Provide exactly 4-5 highly specific, accurate options for each meal type. Do NOT generate the full {days} days, just the pool of options.
+        Ensure JSON is perfectly valid.
         """
         
         response = model.generate_content(prompt)
@@ -53,8 +48,30 @@ def get_meal_plan(category, days=1, user_input="", diet_pref=""):
         text_response = re.sub(r"^```(?:json)?\s*", "", text_response)
         text_response = re.sub(r"\s*```$", "", text_response)
         
-        plan = json.loads(text_response)
-        return plan
+        pool = json.loads(text_response)
+        
+        # Instantly assemble the plan for the requested number of days
+        import random
+        daily_plans = []
+        for day_num in range(1, days + 1):
+            daily_plans.append({
+                "day": day_num,
+                "breakfast": random.choice(pool["breakfasts"]),
+                "mid_morning_snack": random.choice(pool["mid_morning_snacks"]),
+                "lunch": random.choice(pool["lunches"]),
+                "evening_snack": random.choice(pool["evening_snacks"]),
+                "dinner": random.choice(pool["dinners"])
+            })
+            
+        final_plan = {
+            "title": pool["title"],
+            "foods_to_consider": pool["foods_to_consider"],
+            "foods_to_limit": pool["foods_to_limit"],
+            "nutrition_tips": pool["nutrition_tips"],
+            "daily_plans": daily_plans
+        }
+        
+        return final_plan
         
     except Exception as e:
         print("Gemini API failed, falling back to hardcoded plan. Error:", e)
