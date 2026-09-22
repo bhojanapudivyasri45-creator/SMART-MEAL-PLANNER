@@ -10,7 +10,6 @@ def get_meal_plan(category, days=1, user_input="", diet_pref=""):
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key or api_key == "YOUR_GEMINI_API_KEY_HERE" or api_key.strip() == "":
         fb = get_hardcoded_meal_plan(category, days)
-        fb["title"] = "Fallback Plan (Error: Missing GEMINI_API_KEY in Vercel)"
         return fb
         
     try:
@@ -84,7 +83,7 @@ def get_meal_plan(category, days=1, user_input="", diet_pref=""):
     except Exception as e:
         print("Gemini API failed, falling back to hardcoded plan. Error:", e)
         fb = get_hardcoded_meal_plan(category, days)
-        fb["title"] = f"Fallback Plan (Gemini Error: {str(e)[:100]})"
+        # Simply return the hardcoded plan without appending the ugly error to the title
         return fb
 
 
