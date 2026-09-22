@@ -25,6 +25,8 @@ def predict():
     
     try:
         days = int(request.form.get('days', 1))
+        if days > 7:
+            days = 7
     except ValueError:
         days = 1
     
