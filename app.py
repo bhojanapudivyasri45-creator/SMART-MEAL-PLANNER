@@ -18,8 +18,12 @@ classifier = MealPlanClassifier()
 def index():
     return render_template('index.html')
 
-@app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['GET', 'POST'])
 def predict():
+    if request.method == 'GET':
+        from flask import redirect, url_for
+        return redirect(url_for('index'))
+        
     user_input = request.form.get('user_input', '').strip()
     diet_pref = request.form.get('diet_pref', '').strip()
     
