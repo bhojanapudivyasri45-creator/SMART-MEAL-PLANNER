@@ -18,14 +18,6 @@
             <button id="downloadPdfBtn" class="btn btn-primary mt-2">Download as PDF</button>
         </div>
 
-        {% if error_msg %}
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                alert("NOTICE: {{ error_msg }}");
-            });
-        </script>
-        {% endif %}
-
         <div class="row" id="pdfContent">
             <!-- NLP Analysis Column -->
             <div class="col-md-4 mb-4" data-html2canvas-ignore="true">

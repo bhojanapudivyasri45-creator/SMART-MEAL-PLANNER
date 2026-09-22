@@ -67,7 +67,6 @@ def predict():
                                category="General Balanced Diet",
                                confidence="N/A",
                                meal_plan=fallback_plan,
-                               error_msg=f"Model error: {str(e)}. Showing balanced plan.",
                                nlp_steps={})
 
 @app.route('/health')
