@@ -19,9 +19,11 @@
         </div>
 
         {% if error_msg %}
-        <div class="alert alert-info text-center" role="alert">
-            {{ error_msg }}
-        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                alert("NOTICE: {{ error_msg }}");
+            });
+        </script>
         {% endif %}
 
         <div class="row" id="pdfContent">
